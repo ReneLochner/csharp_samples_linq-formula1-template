@@ -14,7 +14,16 @@ namespace Formula1.Core
         /// <returns>DTO für die Fahrerergebnisse</returns>
         public static IEnumerable<TotalResultDto<Driver>> GetDriverWmTable()
         {
-            throw new NotImplementedException();
+            IEnumerable<Result> drivers = ImportController.LoadResultsFromXmlIntoCollections();
+            return drivers
+                .GroupBy(s => s.Driver)
+                .Select(t => new TotalResultDto<Driver>()
+                {
+                    Competitor = t.Key,
+                    Points = t.Sum(p => p.Points)
+                })
+                .OrderByDescending(d => d.Points)
+                .ThenBy(l => l.Competitor.LastName);
         }
 
         /// <summary>
@@ -23,7 +32,17 @@ namespace Formula1.Core
         /// <returns>DTO für die Teamergebnisse</returns>
         public static IEnumerable<TotalResultDto<Team>> GetTeamWmTable()
         {
-            throw new NotImplementedException();
+            IEnumerable<Result> team = ImportController.LoadResultsFromXmlIntoCollections();
+
+            return team
+                .GroupBy(t => t.Team)
+                .Select(s => new TotalResultDto<Team>()
+                {
+                    Competitor = s.Key,
+                    Points = s.Sum(p => p.Points)
+                })
+                .OrderByDescending(o => o.Points)
+                .ThenBy(c => c.Competitor);
         }
     }
 }
